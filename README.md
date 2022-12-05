@@ -1,4 +1,4 @@
-<img src="./public/mindmap.jpg" width="300"/>
+![](https://cdn.jsdelivr.net/gh/WarringKingdoms/photo/img/mindmap.png)
 
 # 思维导图Vue2组件 
  ![npm (scoped)](https://img.shields.io/npm/v/@WarringKingdoms/mindmap?style=plastic) ![npm](https://img.shields.io/npm/dm/@WarringKingdoms/mindmap?style=plastic)
@@ -12,21 +12,22 @@
 > https://github.com/WarringKingdoms/mindmap
 > 我对本项目FORK过来增加以下内容：
 
-> ####**1**
->  增加背景色或者背景图的修改。优先级：background-img> background-color  
->  增加字体颜色动态修改
-> ####**2**
->  增加对.opml文件格式数据的支持（后续如果有时间会增加.xmind和.freemind的支持。如果你有兴趣。可以自己增加。后续可以merge进来）
-> ####**3**
->  增加节点外链功能
-> ####**4**
->  增加初始化时，设置节点左右平衡（建议：如果使用json格式对左右节点设置。最好设置 balanceLeaf 为false）
-> ####**5**
->  增加了折叠子菜单的深度
+> #### **1**  、增加背景色或者背景图的修改。优先级：background-img> background-color  
+增加字体颜色动态修改
+>  
+>  #### **2**  、增加对.opml文件格式数据的支持（后续如果有时间会增加.xmind和.freemind的支持。如果你有兴趣。可以自己增加。希望可以merge进来）
+> 
+>  #### **3**  、增加节点外链功能
+> 
+>  #### **4**  、增加初始化时，设置节点左右平衡（建议：如果使用json格式对左右节点设置。最好设置 balanceLeaf 为false）
+**5**  、增加了折叠子菜单的深度
 ## 安装
 
 ```sh
+原版本：
 npm install @hellowuxin/mindmap
+我fork后新增版本：
+npm install @WarringKingdoms/mindmap
 ```
 
 ## PROPS
@@ -48,14 +49,16 @@ npm install @hellowuxin/mindmap
 | zoomable    | Boolean| true      | 是否可缩放、拖移        |
 | showUndo    | Boolean| true      | 是否显示撤销重做按钮     |
 | download    | Boolean| true      | 是否显示下载按钮        |
-###新增PROPS
+
+### EXT-PROPS
+
 | Name        | Type   | Default   | Description          |
 | ---         | ---    | ---       | ---                  |
 | balanceLeaf | Boolean| true | 设置左右节点平衡（初始化）  |
-| backgroundcolor|string|undefined|设置背景色  
-| textColor|string|undefined|设置字体颜色
-| backgroundimg|string|undefined|设置背景图片（初始化）  
-| foldDeepth|number|-1|设置折叠的深度（-1为不折叠）                   
+| backgroundcolor|string|undefined|设置背景色  |
+| textColor|string|undefined|设置字体颜色|
+| backgroundimg|string|undefined|设置背景图片（初始化）  |
+| foldDeepth|number|-1|设置折叠的深度（-1为不折叠）                   |
 ## EVENTS
 
 | Name           | arguments | Description                    |
@@ -63,7 +66,7 @@ npm install @hellowuxin/mindmap
 | updateNodeName | data, id  | 更新节点名称时，传入节点数据和节点id |
 | click          | data, id  | 点击节点时，传入节点数据和节点id    |
 
-## 样例
+## 样例(旧)
 
 ```html
 <template>

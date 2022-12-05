@@ -187,7 +187,7 @@ export default class MindMap extends Vue {
   get mmStyle() {
     return {
       width: this.width ? `${this.width}px` : '100%',
-      height: this.height ? `${this.height}px` : '',
+      height: this.height ? `${this.height}px` : '100%',
     }
   }
   get svgClass() { return `stroke-width-${this.strokeWidth} ${this.spaceKey && this.zoomable ? 'grab' : ''}` }
