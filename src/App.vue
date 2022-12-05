@@ -137,7 +137,7 @@
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
-// import dataLearn from '../public/learn.json'
+import dataLearn from '../public/learn.json'
 import mindmap from './components/MindMap.vue'
 // import { readXML } from './ts/utils'
 @Component({ components: { mindmap } })
@@ -145,7 +145,7 @@ export default class App extends Vue {
   showSource = false
   onboarding = 0
   length = 3
-  mmdata = this.readFile('https://cdn.jsdelivr.net/gh/WarringKingdoms/photo/img/%E8%B4%A2%E5%8A%A1%E8%87%AA%E7%94%B1%E4%B9%8B%E8%B7%AF.opml')
+  mmdata = dataLearn
   items = [
     { title: 'template' },
     { title: 'script' },

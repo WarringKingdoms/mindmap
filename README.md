@@ -1,7 +1,7 @@
 ![](https://cdn.jsdelivr.net/gh/WarringKingdoms/photo/img/mindmap.png)
 
 # 思维导图Vue2组件 
- ![npm (scoped)](https://img.shields.io/npm/v/@WarringKingdoms/mindmap?style=plastic) ![npm](https://img.shields.io/npm/dm/@WarringKingdoms/mindmap?style=plastic)
+ ![npm (scoped)](https://img.shields.io/npm/v/@warringkingdoms/mindmap?style=plastic) ![npm](https://img.shields.io/npm/dm/@warringkingdoms/mindmap?style=plastic)
 
 > 一个由[MindNode](https://mindnode.com)启发的思维导图Vue组件，基于d3.js实现  
 > 目前实现的功能有基本的编辑、拖移、缩放、撤销、上下文菜单、折叠...
