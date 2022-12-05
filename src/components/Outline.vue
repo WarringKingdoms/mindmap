@@ -79,6 +79,7 @@ export default {
         }
       }
       function appendNode(enter) {
+        console.log(enter)
         const gEnter = enter.append('g')
           .attr('class', 'outnode')
           .attr('transform', (d) => `translate(0,${d.x})`)

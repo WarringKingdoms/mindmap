@@ -11,6 +11,7 @@ interface Mdata {
   color: string
   gKey: number
   size: number[]
+  link: string
   children?: Array<Mdata>
   _children?: Array<Mdata>
   left: boolean

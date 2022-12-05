@@ -17,10 +17,11 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    'no-undef': 'off',
     'lines-between-class-members': 0,
     'space-before-function-paren': ['error', 'never'],
     'comma-dangle': ['error', 'always-multiline'],
-    'operator-linebreak': ['error', 'before'],
+    'operator-linebreak': 'off',
     semi: ['error', 'never'],
   },
 }

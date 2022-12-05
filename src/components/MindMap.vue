@@ -1,6 +1,6 @@
 <template>
   <div ref="mindmap" id="mindmap" :style="mmStyle">
-    <svg ref="svg" tabindex="0" :class="svgClass">
+    <svg ref="svg" tabindex="0" :class="svgClass" v-bind:style="backgroundO" v-bind:backgroud-color="backgroundcolor">
       <g ref="content" id="content" ></g>
       <rect v-show="showSelectedBox" id="selectedBox" ref='selectedBox' :width='seleBox.width' :height='seleBox.height'
         :transform="`translate(${seleBox.x},${seleBox.y})`"
@@ -82,6 +82,9 @@ import { flextree } from 'd3-flextree'
 import ImData from '../ts/ImData'
 import History from '../ts/History'
 import toMarkdown from '../ts/toMarkdown'
+import X2js from 'x2js'
+import { OpmlToJson, isStringNull } from '../ts/utils'
+// import html2canvas from 'html2canvas'
 
 let mmdata: ImData // 思维导图数据
 @Component
@@ -100,8 +103,20 @@ export default class MindMap extends Vue {
   @Prop({ default: true }) zoomable!: boolean
   @Prop({ default: true }) showUndo!: boolean
   @Prop({ default: 4 }) strokeWidth!: number
+  @Prop() backgroundcolor: String |undefined
+  @Prop() backgroundimg: String | undefined
+  @Prop({ default: true }) balanceLeaf!: Boolean
+  @Prop({ default: -1 }) foldDeepth!: number
+  @Prop({ default: 'black' }) textColor!: string
   @Model('change', { required: true }) value!: Array<Data>
-
+  @Watch('textColor')
+  settextColor(val: any) {
+    this.updateMindmap()
+  }
+  @Watch('backgroundcolor')
+  setbackgroundcolor(val: any) {
+    this.backgroundO.backgroundColor = val
+  }
   @Watch('keyboard')
   onKeyboardChanged(val: boolean) { this.makeKeyboard(val) }
   @Watch('showNodeAdd')
@@ -129,7 +144,6 @@ export default class MindMap extends Vue {
     menu: HTMLDivElement
     selectedBox: SVGRectElement
   }
-
   dragFlag = false
   multiSeleFlag = false
   minTextWidth = 16
@@ -155,9 +169,11 @@ export default class MindMap extends Vue {
   ]
   optionList = [
     { title: 'JSON', icon: 'code-json', tip: '创建一个JSON格式的文本文件', color: 'purpleOpt' },
-    { title: '图像', icon: 'image', tip: '创建一个PNG格式的图像文件', color: 'greenOpt', disabled: true },
+    { title: '图像', icon: 'image', tip: '创建一个PNG格式的图像文件', color: 'greenOpt' },
     { title: 'Markdown', icon: 'markdown', tip: '创建一个Markdown格式的文本文件', color: 'grassOpt' },
   ]
+  backgroundO:{[key:string]:any} = {};
+
   selectedOption = 0
   mindmapSvg!: d3.Selection<Element, FlexNode, null, undefined>
   mindmapG!: d3.Selection<Element, FlexNode, null, undefined>
@@ -175,6 +191,7 @@ export default class MindMap extends Vue {
     }
   }
   get svgClass() { return `stroke-width-${this.strokeWidth} ${this.spaceKey && this.zoomable ? 'grab' : ''}` }
+
   get optionTip() { return this.optionList[this.selectedOption].tip }
   get canUndo() { return this.history.canUndo }
   get canRedo() { return this.history.canRedo }
@@ -210,6 +227,8 @@ export default class MindMap extends Vue {
     this.$emit('change', [mmdata.getSource()])
   }
   init() {
+    // 添加全局工具
+    Vue.prototype.$x2js = new X2js()
     // 绑定元素
     this.mindmapSvg = d3.select(this.$refs.svg)
     this.mindmapG = d3.select(this.$refs.content)
@@ -225,7 +244,14 @@ export default class MindMap extends Vue {
       ) && !d3.event.button) // 开启双指捏合 空格键+左键可拖移
       .scaleExtent([0.1, 8]) // 缩放倍数: 0.1～8
     this.makeZoom(this.zoomable)
+    // 设置画布背景色 子长卿
+    if (this.backgroundimg !== undefined) {
+      this.backgroundO.backgroundImage = 'url(' + this.backgroundimg + ')'
+    } else if (this.backgroundcolor !== undefined) {
+      this.backgroundO.backgroundColor = this.backgroundcolor
+    }
   }
+
   initNodeEvent() { // 绑定节点事件
     this.makeDrag(this.draggable)
     this.makeNodeAdd(this.showNodeAdd)
@@ -316,12 +342,19 @@ export default class MindMap extends Vue {
   }
   exportTo() { // 导出至
     const data = mmdata.getSource()
+    const svg = this.$refs.svg
     let content = ''
     let filename = data.name
     switch (this.selectedOption) {
       case 0: // JSON
         content = JSON.stringify(data, null, 2)
         filename += '.json'
+        break
+      case 1:
+        var serializer = new XMLSerializer()
+        var source = serializer.serializeToString(svg)
+        content = '<?xml version="1.0" standalone="no"?>\r\n' + source
+        filename += '.svg'
         break
       case 2: // Markdown
         content = toMarkdown(data)
@@ -487,8 +520,11 @@ export default class MindMap extends Vue {
   }
   // 节点操作
   updateNodeName() { // 文本编辑完成时
-    const editP = document.querySelector('#editing > foreignObject > div') as HTMLDivElement
+    const editP = document.querySelector('#editing > foreignObject > div > .name') as HTMLDivElement
     window.getSelection()?.removeAllRanges() // 清除选中
+    if (editP === null) {
+      return
+    }
     const editText = editP.innerText || ''
     this.mindmapG.select('g#editing').each((d, i, n) => {
       (n[i] as Element).removeAttribute('id')
@@ -518,8 +554,8 @@ export default class MindMap extends Vue {
     n.setAttribute('id', 'editing')
     const fObj = d3.select(n).selectAll('foreignObject').filter((a, b, c) => (c[b] as Element).parentNode === n) as d3.Selection<Element, FlexNode, Element, FlexNode>
     this.focusNode(fObj)
-    fObj.select('div').attr('contenteditable', true)
-    const fdiv = document.querySelector('#editing > foreignObject > div')
+    fObj.select('div').select('[tg=name]').attr('contenteditable', true)
+    const fdiv = document.querySelector('#editing > foreignObject > div > a[tg="name"]')
     if (fdiv) {
       window.getSelection()?.selectAllChildren(fdiv)
     }
@@ -843,12 +879,12 @@ export default class MindMap extends Vue {
   gTransform(d: FlexNode) { return `translate(${d.dy},${d.dx})` }
   foreignX(d: FlexNode) {
     const { xSpacing, foreignBorderWidth } = this
-    return -foreignBorderWidth + (d.data.id !== '0' ? (d.data.left ? -d.size[1] + xSpacing : 0) : -(d.size[1] - xSpacing * 2) / 2)
+    return -foreignBorderWidth + (d.data.id !== '0' ? (d.data.left ? -d.size[1] + xSpacing - this.nodeExrLenth(d.data) : 0) : -(d.size[1] - xSpacing * 2 + this.nodeExrLenth(d.data)) / 2)
   }
   foreignY(d: FlexNode) { return -this.foreignBorderWidth + (d.data.id !== '0' ? -d.size[0] : -d.size[0] / 2) }
   gBtnTransform(d: FlexNode) {
     const { xSpacing, gBtnSide } = this
-    let x = d.data.id === '0' ? (d.size[1] - xSpacing * 2) / 2 + 8 : d.size[1] - xSpacing + 8
+    let x = d.data.id === '0' ? (d.size[1] - xSpacing * 2) / 2 + 8 : d.size[1] - xSpacing + 8 + this.nodeExrLenth(d.data)
     if (d.data.left) {
       x = -x - gBtnSide
     }
@@ -867,12 +903,15 @@ export default class MindMap extends Vue {
   pathId(d: FlexNode) { return `path_${d.data.id}` }
   pathClass(d: FlexNode) { return `depth_${d.depth}` }
   pathColor(d: FlexNode) { return d.data.color || 'white' }
+  nodeExrLenth(d:Mdata) {
+    return (isStringNull(d.link) ? 15 : 0)
+  }
   path(d: FlexNode) {
     const { xSpacing, link } = this
     const temp = (d.parent && d.parent.data.id === '0') ? -d.dy : (d.data.left ? xSpacing : -xSpacing)
     const sourceX = temp - d.py
     const sourceY = 0 - d.dx - d.px
-    let textWidth = d.size[1] - xSpacing
+    let textWidth = d.size[1] - xSpacing + this.nodeExrLenth(d.data)
     if (d.data.left) {
       textWidth = -textWidth
     }
@@ -891,8 +930,22 @@ export default class MindMap extends Vue {
     const gNode = enter.append('g').attr('class', gClass).attr('transform', gTransform)
 
     const foreign = gNode.append('foreignObject').attr('x', foreignX).attr('y', foreignY)
-    const foreignDiv = foreign.append('xhtml:div').attr('contenteditable', false).text((d: FlexNode) => d.data.name)
-    foreignDiv.on('blur', updateNodeName).on('keydown', divKeyDown).on('mousedown', fdivMouseDown)
+    const foreignDiv = foreign.append('xhtml:div')
+    foreignDiv
+      .append('xhtml:a')
+      .attr('contenteditable', false)
+      .attr('tg', 'name')
+      .attr('tabindex', -1)
+      .attr('style', 'color:' + this.textColor)
+      .attr('class', 'name')
+      .text((d: FlexNode) => d.data.name)
+    foreignDiv.filter((d) => isStringNull(d.data.link))
+      .append('xhtml:a')
+      .attr('class', 'links')
+      .attr('tg', 'link')
+      .attr('href', (d: FlexNode) => d.data.link)
+    const foreignName = foreignDiv.select('.name')
+    foreignName.on('blur', updateNodeName).on('keydown', divKeyDown).on('mousedown', fdivMouseDown)
     foreignDiv.each((d, i, n) => {
       const observer = new ResizeObserver((l) => {
         const t = l[0].target
@@ -945,7 +998,8 @@ export default class MindMap extends Vue {
         .attr('x', foreignX)
         .attr('y', foreignY)
 
-      foreign.select('div').text(d.data.name)
+      foreign.select('div').select('[tg=name]').attr('style', 'color:' + this.textColor).text((d: FlexNode) => d.data.name)
+      // foreignDiv.append('xhtml:a').attr('style', this.textStyle).text((d: FlexNode) => d.data.name)
       node.select('path').filter((d, i, n) => (n[i] as Element).parentNode === m[k]).attr('id', pathId(d))
         .attr('class', pathClass(d))
         .attr('stroke', pathColor(d))
@@ -1037,12 +1091,21 @@ export default class MindMap extends Vue {
   addWatch() {
     this.$watch('value', (newVal) => {
       if (this.toUpdate) {
-        mmdata = new ImData(newVal[0], this.getSize)
+        // 校验opml解析为 ImData
+        if (newVal.indexOf('<opml') > 0) {
+          mmdata = new ImData(OpmlToJson(newVal), this.getSize, this.balanceLeaf, this.foldDeepth)
+        } else {
+          mmdata = new ImData(newVal[0], this.getSize, this.balanceLeaf, this.foldDeepth)
+        }
         this.updateMmdata()
       } else {
         this.toUpdate = true
       }
     }, { immediate: true, deep: true })
+  }
+
+  created() {
+
   }
   async mounted() {
     this.init()

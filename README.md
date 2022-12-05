@@ -1,15 +1,28 @@
 <img src="./public/mindmap.jpg" width="300"/>
 
-# 思维导图Vue2组件 ![npm](https://img.shields.io/npm/v/@hellowuxin/mindmap) ![npm](https://img.shields.io/npm/dm/@hellowuxin/mindmap)
+# 思维导图Vue2组件 
+ ![npm (scoped)](https://img.shields.io/npm/v/@WarringKingdoms/mindmap?style=plastic) ![npm](https://img.shields.io/npm/dm/@WarringKingdoms/mindmap?style=plastic)
 
 > 一个由[MindNode](https://mindnode.com)启发的思维导图Vue组件，基于d3.js实现  
 > 目前实现的功能有基本的编辑、拖移、缩放、撤销、上下文菜单、折叠...
 
-## 近期更新
+## 近期更新(维护日志)
 
-> 该项目基本不会再维护  
-> 目前正在开发Vue3、d3v6版本的[思维导图组件](https://github.com/hellowuxin/vue3-mindmap)，欢迎支持
+> 这是hellowuxin 维护的一个思维导图插件。目前vue2的已经不在维护了。因为正在搭建个人博客。需要对vuepress的支持。我对这个项目进行以下内容增加：
+> https://github.com/WarringKingdoms/mindmap
+> 我对本项目FORK过来增加以下内容：
 
+> ####**1**
+>  增加背景色或者背景图的修改。优先级：background-img> background-color  
+>  增加字体颜色动态修改
+> ####**2**
+>  增加对.opml文件格式数据的支持（后续如果有时间会增加.xmind和.freemind的支持。如果你有兴趣。可以自己增加。后续可以merge进来）
+> ####**3**
+>  增加节点外链功能
+> ####**4**
+>  增加初始化时，设置节点左右平衡（建议：如果使用json格式对左右节点设置。最好设置 balanceLeaf 为false）
+> ####**5**
+>  增加了折叠子菜单的深度
 ## 安装
 
 ```sh
@@ -35,7 +48,14 @@ npm install @hellowuxin/mindmap
 | zoomable    | Boolean| true      | 是否可缩放、拖移        |
 | showUndo    | Boolean| true      | 是否显示撤销重做按钮     |
 | download    | Boolean| true      | 是否显示下载按钮        |
-
+###新增PROPS
+| Name        | Type   | Default   | Description          |
+| ---         | ---    | ---       | ---                  |
+| balanceLeaf | Boolean| true | 设置左右节点平衡（初始化）  |
+| backgroundcolor|string|undefined|设置背景色  
+| textColor|string|undefined|设置字体颜色
+| backgroundimg|string|undefined|设置背景图片（初始化）  
+| foldDeepth|number|-1|设置折叠的深度（-1为不折叠）                   
 ## EVENTS
 
 | Name           | arguments | Description                    |
@@ -97,7 +117,6 @@ export default {
 
 ## 待解决
 
-- [ ] 导出多种格式
-- [ ] 设置节点的宽高
-- [ ] 多个根节点
-- [ ] ...
+
+- [ ] 导出格式设置未修复。后续有时间修复...
+- [ ] 后续新增主题设置，对节点和路径颜色形状进行增加

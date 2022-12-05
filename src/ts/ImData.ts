@@ -106,16 +106,64 @@ function initLeft(d: Mdata, left = false) {
     }
   }
 }
+function initDeepth(d: Mdata, foldDeepth: number, deepnum: number) {
+  if (foldDeepth < 0) {
+    return
+  }
+  deepnum++
+  let { children, _children } = d
+  if (children) {
+    for (let i = 0; i < children.length; i += 1) {
+      initDeepth(children[i], foldDeepth, deepnum)
+    }
+  }
+  if (_children) {
+    for (let i = 0; i < _children.length; i += 1) {
+      initDeepth(_children[i], foldDeepth, deepnum)
+    }
+  }
+
+  if (deepnum >= foldDeepth) {
+    let child :Array<Mdata> = []
+    if (children) {
+      child = children
+      d.children = undefined
+    }
+    if (_children) {
+      _children = _children.concat(child)
+    } else if (child.length > 0) {
+      d._children = child
+    }
+  }
+  deepnum--
+}
+function setbalanceLeaf(d: Mdata) {
+  if (d === undefined || d === null) {
+    return
+  }
+  d.left = true
+  const { children, _children } = d
+  if (children) {
+    for (let i = 0; i < children.length; i += 1) {
+      setbalanceLeaf(children[i])
+    }
+  }
+  if (_children) {
+    for (let i = 0; i < _children.length; i += 1) {
+      setbalanceLeaf(_children[i])
+    }
+  }
+}
 
 class ImData {
   data: Mdata
-  constructor(d: Data, fn: Function) {
+  constructor(d: Data, fn: Function, balanceLeaf: Boolean, foldDeepth:number) {
     size = fn
     this.data = JSON.parse(JSON.stringify(d))
     initId(this.data)
     initColor(this.data)
     initSize(this.data)
-
+    initDeepth(this.data, foldDeepth, 0)
     this.data.left = false
     const { children, _children } = this.data
     if (children) {
@@ -126,6 +174,25 @@ class ImData {
     if (_children) {
       for (let i = 0; i < _children.length; i += 1) {
         initLeft(_children[i], _children[i].left)
+      }
+    }
+    // 左右平衡
+    if (balanceLeaf) {
+      if (children) {
+        const midcount = Math.floor(children.length / 2)
+        for (let i = 0; i < children.length; i += 1) {
+          if (!children[i].left && i < midcount) {
+            setbalanceLeaf(children[i])
+          }
+        }
+      }
+      if (_children) {
+        const midcount = Math.floor(_children.length / 2)
+        for (let i = 0; i < _children.length; i += 1) {
+          if (!_children[i].left && i < midcount) {
+            setbalanceLeaf(_children[i])
+          }
+        }
       }
     }
   }
