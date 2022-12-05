@@ -21,6 +21,13 @@
 > 
 >  #### **4**  、增加初始化时，设置节点左右平衡（建议：如果使用json格式对左右节点设置。最好设置 balanceLeaf 为false）
 **5**  、增加了折叠子菜单的深度
+
+
+
+## 体验地址
+
+​    [思维导图](https://warringkingdoms.github.io/mindmap/)
+
 ## 安装
 
 ```sh
@@ -59,6 +66,7 @@ npm install @WarringKingdoms/mindmap
 | textColor|string|undefined|设置字体颜色|
 | backgroundimg|string|undefined|设置背景图片（初始化）  |
 | foldDeepth|number|-1|设置折叠的深度（-1为不折叠）                   |
+
 ## EVENTS
 
 | Name           | arguments | Description                    |

@@ -1,5 +1,5 @@
 module.exports = {
-  publicPath: 'mindmap',
+  publicPath: '/',
   css: {
     extract: false,
   },
