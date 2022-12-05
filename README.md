@@ -34,7 +34,7 @@
 原版本：
 npm install @hellowuxin/mindmap
 我fork后新增版本：
-npm install @WarringKingdoms/mindmap
+npm install@warringkingdoms/mindmap
 ```
 
 ## PROPS
